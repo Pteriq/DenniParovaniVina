@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DenniParovaniVina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@500;600&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c0609; --bg2:#3b0c18; --ink:#f4e9d8; --muted:#c9b29c; --line:rgba(212,175,106,.28);
+    --gold:#d4af6a; --gold-2:#ecd29b; --wine:#8e1b2c; --wine-2:#b02a40;
+    --paper:#f5ecdc; --paper-ink:#2b1015; --paper-muted:#76594e; --paper-line:#dcc9a8;
+    --good:#4f9a5e; --ok:#b07f14; --meh:#d9783a; --bad:#c8394f;
+    --shadow:0 2px 6px rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  html{background:var(--bg)}
+  body{min-height:100vh;color:var(--ink);font:16px/1.6 "EB Garamond",Georgia,serif;-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(1200px 600px at 50% -10%,rgba(176,42,64,.45),transparent 60%),
+      radial-gradient(900px 700px at 100% 100%,rgba(90,20,40,.5),transparent 60%),
+      linear-gradient(180deg,var(--bg2),var(--bg) 55%);
+}
+  .wrap{max-width:900px;margin:0 auto;padding:34px 18px 70px}
+  .sans{font-family:Inter,system-ui,sans-serif}
+  header{text-align:center;margin-bottom:28px}
+  .crest{width:46px;height:46px;margin:0 auto 8px;display:block}
+  .logo{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(34px,6vw,54px);letter-spacing:.02em;margin:0;line-height:1.05;color:var(--ink)}
+  .logo em{font-style:italic;color:var(--gold)}
+  .flourish{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--gold);margin:10px auto 6px;max-width:360px}
+  .flourish::before,.flourish::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+  .flourish::after{background:linear-gradient(90deg,var(--gold),transparent)}
+  .sub{color:var(--muted);font:500 12px Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase}
+
+  /* vinná etiketa */
+  .label{position:relative;background:var(--paper);color:var(--paper-ink);border-radius:6px;padding:34px 30px;box-shadow:var(--shadow);
+    background-image:radial-gradient(circle at 20% 10%,rgba(255,255,255,.6),transparent 40%),radial-gradient(circle at 90% 90%,rgba(185,150,95,.18),transparent 50%)}
+  .label::before{content:"";position:absolute;inset:8px;border:1px solid var(--gold);border-radius:3px;pointer-events:none}
+  .label::after{content:"";position:absolute;inset:12px;border:1px solid rgba(212,175,106,.5);border-radius:2px;pointer-events:none}
+  .food{text-align:center;position:relative;z-index:1}
+  .emoji{font-size:54px;line-height:1;margin:0 auto 6px;width:92px;height:92px;display:grid;place-items:center;border-radius:50%;
+    border:1px solid var(--gold);background:radial-gradient(circle,#fffaf0,#efe2c9)}
+  .eyebrow{font:600 11px Inter,sans-serif;text-transform:uppercase;letter-spacing:.22em;color:#9b7a3c}
+  .food h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:clamp(30px,5vw,42px);margin:4px 0 6px;line-height:1.1;color:var(--wine)}
+  .food p{margin:0 auto;max-width:560px;color:var(--paper-muted);font-style:italic;font-size:18px}
+
+  h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:28px;margin:38px 0 14px;text-align:center;color:var(--gold-2)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .opt{all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;position:relative;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);
+    transition:transform .15s,border-color .15s,background .15s,box-shadow .15s}
+  .opt:hover{transform:translateY(-2px);border-color:var(--gold);background:linear-gradient(180deg,rgba(212,175,106,.14),rgba(212,175,106,.04));box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  .opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .opt svg.g{flex:0 0 auto}
+  .opt .txt{display:flex;flex-direction:column;min-width:0}
+  .opt .n{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:21px;line-height:1.15}
+  .opt .t{font:500 11px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+  .opt.done{cursor:default;padding-right:64px}
+  .opt.done:hover{transform:none;box-shadow:none;border-color:var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+  .opt.picked,.opt.picked:hover{border:1px solid var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+  .opt.best,.opt.best:hover{background:linear-gradient(180deg,rgba(79,154,94,.22),rgba(79,154,94,.06))}
+  .opt .sc{position:absolute;right:16px;top:50%;transform:translateY(-50%);font:600 15px Inter,sans-serif}
+
+  .result{margin-top:26px;display:none}
+  .result.show{display:block;animation:in .4s ease}
+  @keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .result > *{position:relative;z-index:1}
+  .scoreRow{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  .glassBox{position:relative;width:96px;flex:0 0 auto;text-align:center}
+  .glassBox .v{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:34px;line-height:1;margin-top:4px}
+  .verdict{font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;font-weight:700;margin:2px 0 0;line-height:1.1}
+  .wineName{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:22px;margin-top:4px;color:var(--paper-ink)}
+  .desc{color:var(--paper-muted);margin:4px 0 0;font-style:italic;font-size:17px}
+  .why{margin-top:20px;padding:14px 18px;border-left:2px solid var(--wine);background:rgba(142,27,44,.06);font-size:18px}
+  .why b{font-family:Inter,sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--wine);margin-right:6px}
+  .bestBox{margin-top:16px;padding:16px 18px;border:1px solid var(--paper-line);background:rgba(79,154,94,.08);border-radius:4px;font-size:17px}
+  .bestBox .eyebrow{color:#3f7d4b}
+  .bestBox .bn{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;font-weight:700;margin:2px 0 4px;color:var(--paper-ink)}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;align-items:center}
+  .btn{all:unset;cursor:pointer;padding:10px 20px;border-radius:2px;font:600 12px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+    background:var(--wine);color:#fbefe0;border:1px solid var(--wine)}
+  .btn:hover{background:var(--wine-2)}
+  .btn.ghost{background:transparent;color:var(--gold);border:1px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--gold)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  .countdown{color:var(--paper-muted);font:500 13px Inter,sans-serif;margin-left:auto}
+  .countdown b{font-variant-numeric:tabular-nums;color:var(--paper-ink)}
+
+  details.all{margin-top:20px}
+  details.all summary{cursor:pointer;font:600 12px Inter,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--wine)}
+  .rank{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:0}
+  .rank li{padding:12px 2px;border-bottom:1px dotted var(--paper-line)}
+  .rank .top{display:flex;justify-content:space-between;gap:10px;font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:20px}
+  .rank .top .s{font:600 14px Inter,sans-serif}
+  .rank p{margin:2px 0 0;font-size:16px;color:var(--paper-muted)}
+  .rank .mine{font:600 11px Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--wine);margin-left:6px}
+  .bar{height:4px;border-radius:9px;background:var(--paper-line);margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%}
+
+  .tag{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:0 0 0 1px rgba(0,0,0,.25) inset}
+
+  .histHead{display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-top:44px}
+  .histHead h3{margin:0}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 16px}
+  .stat{border:1px solid var(--line);border-radius:8px;padding:14px;text-align:center;background:rgba(255,255,255,.03)}
+  .stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;line-height:1.1;color:var(--gold-2)}
+  .stat span{font:500 11px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .hist li{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:12px 18px;background:rgba(255,255,255,.03)}
+  .hist .he{font-size:30px}
+  .hist .hd{font:500 11px Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .hist .hf{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:21px;line-height:1.2}
+  .hist .hw{font-size:16px;color:var(--muted);font-style:italic}
+  .hist .hs{font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;font-size:28px;text-align:right;line-height:1}
+  .hist .hs small{display:block;font:500 10px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .empty{color:var(--muted);text-align:center;padding:24px;border:1px dashed var(--line);border-radius:8px;font-style:italic}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--paper);color:var(--paper-ink);padding:10px 20px;border-radius:2px;font:500 14px Inter,sans-serif;opacity:0;transition:.25s;pointer-events:none;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+  .confirm{display:none;gap:8px;align-items:center;font:500 13px Inter,sans-serif;color:var(--muted)}
+  .confirm.show{display:flex}
+  footer{text-align:center;color:var(--muted);font-style:italic;font-size:15px;margin-top:44px}
+  @media (max-width:560px){ .stats{grid-template-columns:repeat(2,1fr)} .countdown{margin-left:0} .label{padding:30px 20px} .scoreRow{justify-content:center;text-align:center} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <svg class="crest" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 5h20c1 9 1 15-3 20-2 2.5-4.5 3.5-7 3.5S19 27.5 17 25c-4-5-4-11-3-20z" fill="none" stroke="#d4af6a" stroke-width="1.6"/><path d="M15 14h18c-.2 4.5-1 8-3.2 10.6C28 26.8 26 27.6 24 27.6s-4-.8-5.8-3C16 22 15.2 18.5 15 14z" fill="#8e1b2c"/><path d="M24 28.5V41M17 43h14" stroke="#d4af6a" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <h1 class="logo">Denní párování <em>vína</em></h1>
+    <div class="flourish">❦</div>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <section class="label">
+    <div class="food">
+      <div class="emoji" id="foodEmoji"></div>
+      <div>
+        <div class="eyebrow">Dnešní jídlo</div>
+        <h2 id="foodName"></h2>
+        <p id="foodDesc"></p>
+      </div>
+    </div>
+  </section>
+
+  <h3 id="question">Které víno se k tomu hodí nejlépe?</h3>
+  <div class="grid" id="options"></div>
+
+  <section class="label result" id="result">
+    <div class="scoreRow">
+      <div class="glassBox" id="ring"></div>
+      <div style="flex:1;min-width:220px">
+        <div class="eyebrow">Tvoje volba</div>
+        <p class="verdict" id="verdict"></p>
+        <div class="wineName" id="pickName"></div>
+        <p class="desc" id="pickDesc"></p>
+      </div>
+    </div>
+    <div class="why" id="pickWhy"></div>
+    <div class="bestBox" id="bestBox"></div>
+    <details class="all">
+      <summary>Zobrazit hodnocení všech 10 vín</summary>
+      <ul class="rank" id="rank"></ul>
+    </details>
+    <div class="actions">
+      <button class="btn" id="shareBtn">Zkopírovat výsledek</button>
+      <div class="countdown">Další výzva za <b id="cd">--:--:--</b></div>
+    </div>
+  </section>
+
+  <div class="histHead">
+    <h3>Tvoje historie</h3>
+    <div>
+      <button class="btn ghost" id="clearBtn">Vymazat historii</button>
+      <span class="confirm" id="confirm">Opravdu smazat?
+        <button class="btn" id="yesClear">Ano, smazat</button>
+        <button class="btn ghost" id="noClear">Ne</button>
+      </span>
+    </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <ul class="hist" id="hist"></ul>
+
+  <footer>Každý den o půlnoci nová výzva. Historie se ukládá jen v tomto prohlížeči.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- VÍNA ---------- */
+const WINES = {
+  ryzlink:{n:"Ryzlink rýnský",t:"bile",d:"Svěží aromatické bílé s vysokou kyselinou, tóny citrusů, broskve a minerality."},
+  sauvignon:{n:"Sauvignon blanc",t:"bile",d:"Živé, ostře svěží bílé s vůní kopřiv, angreštu a citrusů."},
+  chardonnay_sud:{n:"Chardonnay zrálé v sudu",t:"bile",d:"Plné, krémové bílé s tóny másla, vanilky a zralých jablek."},
+  chablis:{n:"Chablis",t:"bile",d:"Štíhlé, minerální Chardonnay z Burgundska bez dubu, s křídovou svěžestí."},
+  veltlin:{n:"Veltlínské zelené",t:"bile",d:"Svěží bílé se zeleným jablkem a typickým bílým pepřem."},
+  tramin:{n:"Tramín červený",t:"bile",d:"Výrazně aromatické bílé s vůní růží a liči, často s jemnou sladkostí."},
+  muskat:{n:"Muškát moravský",t:"bile",d:"Lehké, květinové bílé s výraznou hroznovou vůní."},
+  pinot_gris:{n:"Rulandské šedé",t:"bile",d:"Plnější bílé s tóny hrušky, medu a oříšků."},
+  prosecco:{n:"Prosecco",t:"sumive",d:"Lehké italské šumivé víno se zeleným jablkem a hruškou."},
+  champagne:{n:"Champagne Brut",t:"sumive",d:"Suché šumivé víno s jemnými bublinkami, brioškou a vysokou kyselinou."},
+  rose:{n:"Růžové z Provence",t:"ruzove",d:"Suché, světlé růžové s tóny jahod, citrusů a bylinek."},
+  pinot_noir:{n:"Rulandské modré (Pinot noir)",t:"cervene",d:"Lehké, elegantní červené s třešněmi, lesní půdou a jemnými taniny."},
+  frankovka:{n:"Frankovka",t:"cervene",d:"Středně plné červené s višněmi, kořením a živou kyselinou."},
+  svatovavrinecke:{n:"Svatovavřinecké",t:"cervene",d:"Sametové červené s tmavými třešněmi a švestkami."},
+  zweigelt:{n:"Zweigeltrebe",t:"cervene",d:"Ovocné, lehčí červené s višněmi a měkkými taniny."},
+  cabernet:{n:"Cabernet Sauvignon",t:"cervene",d:"Plné červené s výraznými taniny, černým rybízem a cedrem."},
+  merlot:{n:"Merlot",t:"cervene",d:"Měkké, kulaté červené se švestkami a tóny čokolády."},
+  syrah:{n:"Syrah",t:"cervene",d:"Plné, kořenité červené s ostružinami, černým pepřem a kouřem."},
+  malbec:{n:"Malbec z Argentiny",t:"cervene",d:"Tmavé, šťavnaté červené se švestkami, fialkami a měkčími taniny."},
+  chianti:{n:"Chianti Classico",t:"cervene",d:"Toskánské Sangiovese s vysokou kyselinou, višněmi a bylinkami."},
+  barolo:{n:"Barolo",t:"cervene",d:"Mohutné Nebbiolo z Piemontu – silné taniny, růže, dehet a lanýže."},
+  zinfandel:{n:"Primitivo / Zinfandel",t:"cervene",d:"Zralé, džemové červené s vyšším alkoholem a tóny sušeného ovoce."},
+  beaujolais:{n:"Beaujolais (Gamay)",t:"cervene",d:"Lehké, šťavnaté červené s malinami, podává se lehce chlazené."},
+  rioja:{n:"Rioja Reserva",t:"cervene",d:"Španělské Tempranillo s vanilkou, kůží a sušeným ovocem z dubových sudů."},
+  amarone:{n:"Amarone della Valpolicella",t:"cervene",d:"Velmi plné víno ze sušených hroznů – sušené švestky, čokoláda, vysoký alkohol."},
+  port:{n:"Portské Ruby",t:"fortifikovane",d:"Sladké fortifikované víno z Portugalska s tmavým ovocem."},
+  fino:{n:"Sherry Fino",t:"fortifikovane",d:"Suché, lehce slané španělské víno s tóny mandlí a kvasnic."},
+  sauternes:{n:"Sauternes",t:"dezertni",d:"Sladké botrytické bílé z Bordeaux s medem, meruňkami a šafránem."},
+  tokaj:{n:"Tokajský výběr",t:"dezertni",d:"Sladké víno s medem, meruňkami a svěží kyselinou."},
+  moscato_dasti:{n:"Moscato d'Asti",t:"sumive",d:"Jemně perlivé, sladké víno s nízkým alkoholem a vůní hroznů."},
+  muller:{n:"Müller Thurgau",t:"bile",d:"Lehké, jemné bílé s nádechem muškátu a nízkou kyselinou."},
+  palava:{n:"Pálava",t:"bile",d:"Moravské aromatické bílé s tóny růží a koření, často polosladké."},
+  lambrusco:{n:"Lambrusco",t:"cervene",d:"Perlivé italské červené s tóny jahod a višní, lehké a svěží."},
+  marsala:{n:"Marsala Superiore Dolce",t:"fortifikovane",d:"Sladké sicilské fortifikované víno s karamelem, ořechy a sušeným ovocem."}
+};
+const TYPE_LABEL = {bile:"Bílé",cervene:"Červené",ruzove:"Růžové",sumive:"Šumivé",dezertni:"Dezertní",fortifikovane:"Fortifikované"};
+
+/* ---------- JÍDLA ---------- */
+const FOODS = [
+ {id:"svickova",e:"🥩",n:"Svíčková na smetaně",d:"Hovězí pečeně se smetanovou zeleninovou omáčkou, brusinkami a houskovým knedlíkem.",o:[
+  ["frankovka",93,"Živá kyselina prořízne smetanovou omáčku a višňové tóny krásně ladí s brusinkami."],
+  ["svatovavrinecke",85,"Sametové ovoce sedí k hovězímu, jen kyselina je o něco nižší než u frankovky."],
+  ["pinot_gris",80,"Plnější bílé s medovým nádechem doplní sladkokyselou omáčku a kořenovou zeleninu."],
+  ["pinot_noir",78,"Elegantní a jemné, k hovězímu dobré, ale hustá omáčka ho může trochu přehlušit."],
+  ["chardonnay_sud",66,"Máslové tóny ladí se smetanou, ale spojení hrozí být až příliš těžké."],
+  ["tramin",55,"Jemná sladkost koresponduje s omáčkou, ale vůně růží k hovězímu působí zvláštně."],
+  ["cabernet",45,"Výrazné taniny se se sladkou smetanovou omáčkou perou a víno působí hořce."],
+  ["prosecco",38,"Příliš lehké a ovocné – v sytém jídle se úplně ztratí."],
+  ["fino",22,"Slaná, ostrá sherry je k omáčce s brusinkami cizorodá."],
+  ["port",15,"Sladké a těžké portské k hlavnímu jídlu se smetanou – sladkost na sladkost, velmi únavné."]]},
+ {id:"kachna",e:"🦆",n:"Pečená kachna se zelím a knedlíkem",d:"Křupavá kachní kůže, šťavnaté maso, červené zelí a bramborový knedlík.",o:[
+  ["pinot_noir",95,"Klasika: kyselina čistí tučné maso a třešňové tóny s jemnými taniny kachnu dokonale doplní."],
+  ["svatovavrinecke",88,"Tmavé třešně a sametová textura – tradiční český tah k pečené kachně."],
+  ["frankovka",82,"Kyselina a koření si poradí s tukem i se sladkokyselým zelím."],
+  ["pinot_gris",76,"Plné bílé s oříškovými tóny unese tučné maso a k zelí sedí dobře."],
+  ["tramin",70,"Kořenitost a mírná sladkost ladí s kmínem a sladkokyselým zelím."],
+  ["zinfandel",52,"Džemové a alkoholické – k tučnému masu až příliš těžké."],
+  ["cabernet",48,"Silné taniny s tukem nejsou katastrofa, ale jemnou chuť kachny přebijí."],
+  ["sauvignon",35,"Bylinkové a štíhlé, proti tučné kachně působí vyzáble a kysele."],
+  ["sauternes",30,"Ke kachním játrům skvělé, k pečeni se zelím ale přeslazené."],
+  ["moscato_dasti",18,"Sladké perlivé víno k pečenému masu ztratí veškerý smysl."]]},
+ {id:"losos",e:"🐟",n:"Grilovaný losos",d:"Filet z lososa grilovaný na kůži, s citronem, koprem a pečenou zeleninou.",o:[
+  ["pinot_noir",92,"Lehké červené s nízkými taniny – jeden z mála případů, kdy červené k rybě funguje skvěle."],
+  ["chardonnay_sud",88,"Plné, máslové bílé odpovídá tučné rybě i kouřovým tónům z grilu."],
+  ["rose",85,"Suché provensálské růžové je k lososovi svěží a univerzální volba."],
+  ["ryzlink",80,"Kyselina pročistí tuk a citrusy působí jako kapka citronu."],
+  ["beaujolais",74,"Lehce chlazené a šťavnaté – na grilovaném lososovi překvapivě dobré."],
+  ["champagne",72,"Bubliny a kyselina čistí patro, jen trochu chybí tělo."],
+  ["syrah",35,"Kořenité a tanické víno s rybou spíše bojuje."],
+  ["cabernet",28,"Taniny s rybím olejem vytvoří kovovou, nepříjemnou dochuť."],
+  ["amarone",15,"Masivní, alkoholické víno lososa úplně zdrtí."],
+  ["port",10,"Sladké fortifikované víno k rybě nedává smysl."]]},
+ {id:"ustrice",e:"🦪",n:"Čerstvé ústřice",d:"Syrové ústřice na ledu s citronem a šalotkovým octem.",o:[
+  ["chablis",96,"Minerální, štíhlé Chablis s mořskými tóny – snad nejslavnější párování vůbec."],
+  ["champagne",93,"Suché bubliny a kyselina zvýrazní slanost i krémovost ústřic."],
+  ["veltlin",84,"Svěží, pepřový, se zeleným jablkem – funguje jako kapka citronu."],
+  ["fino",82,"Suchá, slaná sherry s mořem rezonuje – odvážné, ale výborné."],
+  ["sauvignon",80,"Kyselina a citrusy fungují, jen aromatika může být trochu dominantní."],
+  ["prosecco",65,"Bubliny pomohou, ale ovocnost a nižší kyselina jsou méně přesné."],
+  ["chardonnay_sud",40,"Vanilka a máslo z dubu překryjí jemnou chuť moře."],
+  ["tramin",30,"Parfémová aromatika a sladkost se k ústřicím vůbec nehodí."],
+  ["cabernet",8,"Taniny s jódem a slaností – kovová, hořká katastrofa."],
+  ["port",5,"Sladké a těžké – přesný opak toho, co ústřice potřebují."]]},
+ {id:"steak",e:"🥩",n:"Steak z ribeye",d:"Prorostlý hovězí steak z grilu, medium rare, s máslem a hrubou solí.",o:[
+  ["cabernet",96,"Taniny se váží s tukem a bílkovinou, černý rybíz a cedr ladí s grilovanou kůrkou."],
+  ["malbec",92,"Argentinská klasika – šťavnaté tmavé ovoce a měkčí taniny k prorostlému masu."],
+  ["syrah",88,"Pepř a kouř korespondují s grilovanou kůrkou."],
+  ["barolo",86,"Mohutné taniny a kyselina; ke steaku výborné, jen chce víno pár let zrát."],
+  ["rioja",82,"Kůže, vanilka a sušené ovoce ladí s kořením a dřevěným uhlím."],
+  ["pinot_noir",58,"Elegantní, ale tučný ribeye ho snadno převálcuje."],
+  ["chardonnay_sud",45,"Tělo by maso uneslo, ale chybí taniny, které steak potřebuje."],
+  ["prosecco",25,"Lehké bubliny proti steaku nemají šanci."],
+  ["muskat",18,"Hroznová aromatika a lehkost s hovězím vůbec nesouzní."],
+  ["sauternes",8,"Sladké dezertní víno ke steaku – čistý chuťový konflikt."]]},
+ {id:"pizza",e:"🍕",n:"Pizza Margherita",d:"Neapolská pizza s rajčaty San Marzano, mozzarellou a čerstvou bazalkou.",o:[
+  ["chianti",95,"Sangiovese má kyselinu, která sedí k rajčatům, a bylinkové tóny k bazalce."],
+  ["beaujolais",82,"Šťavnaté a lehké – k jednoduché pizze ideální pohoda."],
+  ["frankovka",80,"Kyselina a višně fungují k rajčatům podobně jako Sangiovese."],
+  ["zinfandel",78,"Primitivo z jihu Itálie – zralé ovoce k rajčatové omáčce."],
+  ["rose",74,"Suché růžové je k margheritě osvěžující a nekonfliktní."],
+  ["prosecco",66,"Bubliny proříznou mozzarellu, ovocnost je ale trochu nevýrazná."],
+  ["cabernet",52,"Taniny a těžká struktura jsou na jednoduchou pizzu zbytečně silné."],
+  ["chardonnay_sud",40,"Máslo a dub s kyselými rajčaty nejdou dohromady."],
+  ["tokaj",15,"Medová sladkost a rajčata se vzájemně kazí."],
+  ["sauternes",10,"Sladké víno s kyselou rajčatovou omáčkou chutná nepříjemně."]]},
+ {id:"kari",e:"🍛",n:"Thajské červené kari",d:"Pálivé kari s kokosovým mlékem, kuřecím masem, citronovou trávou a thajskou bazalkou.",o:[
+  ["tramin",94,"Jemná sladkost tlumí pálivost a liči s růží ladí s kokosem a citronovou trávou."],
+  ["ryzlink",92,"Polosuchý ryzlink osvěží kyselinou a sladkostí zkrotí chilli."],
+  ["muskat",82,"Lehké, aromatické a hroznové – pálivost příjemně uklidní."],
+  ["moscato_dasti",74,"Nízký alkohol a sladkost hasí pálivost, jen je to trochu dezertní."],
+  ["rose",70,"Svěží a lehké, nic nezkazí, ale ani nic nepřidá."],
+  ["prosecco",64,"Bubliny osvěží, ale kari ho chuťově přebije."],
+  ["chardonnay_sud",35,"Dub a alkohol pálivost zvýrazní; máslo s kokosem ještě ujde."],
+  ["barolo",15,"Tvrdé taniny a chilli jsou spolu nesnesitelné."],
+  ["cabernet",12,"Taniny s chilli zesílí pálivost i hořkost – až bolestivé."],
+  ["amarone",10,"Vysoký alkohol pálivost dramaticky zvýší."]]},
+ {id:"sushi",e:"🍣",n:"Sushi mix",d:"Nigiri a maki s lososem, tuňákem a bílou rybou, se sójovou omáčkou a wasabi.",o:[
+  ["ryzlink",93,"Suchý, minerální a citrusový ryzlink k syrové rybě i wasabi."],
+  ["champagne",92,"Suché bubliny čistí patro od rýže i ryby a ladí s umami."],
+  ["veltlin",88,"Pepřovost a svěžest se potkají se zázvorem a wasabi."],
+  ["chablis",86,"Minerální a čisté – k bílým rybám výborné."],
+  ["prosecco",76,"Lehké bubliny k sushi fungují, jen méně přesně než champagne."],
+  ["rose",74,"Suché růžové pasuje hlavně k lososovým nigiri."],
+  ["pinot_noir",55,"Lehké a málo tanické – k tuňáku ujde, k ostatnímu méně."],
+  ["syrah",18,"Kořenitá síla přebije jemnost syrové ryby."],
+  ["cabernet",12,"Taniny s rybou a sójovkou zanechají kovovou pachuť."],
+  ["port",8,"Sladké a těžké – sushi zcela přehluší."]]},
+ {id:"smazak",e:"🧀",n:"Smažený sýr s tatarkou",d:"Obalovaná eidamová cihla, hranolky a domácí tatarská omáčka.",o:[
+  ["veltlin",92,"Svěží a kořenité – kyselina prořízne smaženou strouhanku i tatarku."],
+  ["champagne",90,"Šampaňské ke smaženému je skrytá klasika – kyselina a bubliny proti tuku."],
+  ["prosecco",88,"Bubliny čistí tuk ze smažení, lehká ovocnost sedí k tatarce."],
+  ["sauvignon",86,"Vysoká kyselina a bylinky dodají smaženému sýru svěžest."],
+  ["zweigelt",70,"Lehké ovocné červené s nízkými taniny ujde."],
+  ["pinot_gris",66,"Plnější bílé sýr unese, ale kyselina je nižší."],
+  ["malbec",35,"Plné tělo a taniny zbytečně zatíží už tak těžké jídlo."],
+  ["cabernet",30,"Taniny se sýrem a majonézou působí tvrdě a hořce."],
+  ["sauternes",25,"Sladkost s tatarkou nejde, i když samotný sýr by ji snesl."],
+  ["amarone",15,"Těžké, alkoholické víno ke smaženému – dvojnásobná tíha."]]},
+ {id:"kozi",e:"🥗",n:"Salát s pečeným kozím sýrem",d:"Listový salát, gratinovaný kozí sýr, vlašské ořechy a medový vinaigrette.",o:[
+  ["sauvignon",96,"Klasika z Loiry – kopřivy, citrusy a kyselina zrcadlí svěží kozí sýr."],
+  ["veltlin",86,"Svěží a bylinkové, sedí k salátu i k sýru."],
+  ["ryzlink",82,"Kyselina prořízne krémovost, minerální tóny ladí se zeleninou."],
+  ["rose",80,"Lehké a svěží – na salát ideální."],
+  ["chablis",78,"Štíhlé a minerální, jen méně aromatické."],
+  ["pinot_noir",60,"Jemné červené k sýru ujde, se salátem a octem méně."],
+  ["chardonnay_sud",48,"Dub a máslo přehluší svěžest kozího sýra."],
+  ["port",30,"Ke zralým sýrům ano, k čerstvému salátu je přeslazené."],
+  ["cabernet",18,"Taniny s kozím sýrem a vinaigrettem vytvoří kovovou hořkost."],
+  ["amarone",12,"Mohutné víno jemný salát úplně zničí."]]},
+ {id:"cokolada",e:"🍫",n:"Dort z hořké čokolády",d:"Hutný čokoládový dort se 70% čokoládou a ganache.",o:[
+  ["port",95,"Víno musí být sladší než dezert – sladké portské s tmavým ovocem to splní dokonale."],
+  ["tokaj",76,"Sladkost a kyselina dezert zvládnou, meruňky s čokoládou jsou zajímavý kontrast."],
+  ["zinfandel",72,"Zralé, džemové ovoce a vyšší alkohol se s čokoládou snesou."],
+  ["amarone",70,"Sušené švestky a čokoládové tóny ladí, jen víno je suché."],
+  ["sauternes",68,"Je sladké, ale medové tóny s hořkou čokoládou méně rezonují."],
+  ["moscato_dasti",55,"Sladké, ale lehké – čokoláda ho přebije."],
+  ["merlot",50,"Má čokoládové tóny, ale suché víno ke sladkému dezertu zhořkne."],
+  ["cabernet",25,"Suché a tanické – s čokoládou působí trpce."],
+  ["champagne",15,"Suché bubliny s dortem chutnají kysele a kovově."],
+  ["sauvignon",8,"Kyselé, bylinkové a suché – s čokoládou naprostý nesoulad."]]},
+ {id:"vepro",e:"🐖",n:"Vepřo knedlo zelo",d:"Pečená vepřová plec s kmínem, kysané zelí a houskový knedlík.",o:[
+  ["veltlin",92,"Svěží kořenité bílé prořízne tuk a jeho pepřovost sedí ke kmínu."],
+  ["ryzlink",86,"Kyselina a ovoce si poradí s kyselým zelím i tučným masem."],
+  ["pinot_gris",84,"Plnější bílé s kořenitostí krásně doplní pečené vepřové."],
+  ["frankovka",80,"Lehčí červené s kyselinou zvládne pečeni i zelí."],
+  ["zweigelt",76,"Ovocné a lehké, jídlo nijak nepřebije."],
+  ["tramin",68,"Ke sladkokyselému zelí ujde, s kmínem už méně."],
+  ["cabernet",40,"Silné taniny a plnost jsou pro vepřové příliš."],
+  ["barolo",35,"Tvrdé taniny potřebují hovězí, ne vepřové se zelím."],
+  ["sauternes",15,"Dezertní sladkost k hlavnímu jídlu nesedí."],
+  ["port",10,"Sladké fortifikované víno k vepřové pečeni – nesmysl."]]},
+ {id:"rizoto",e:"🍄",n:"Houbové rizoto",d:"Krémové rizoto s lesními houbami, parmazánem a kapkou lanýžového oleje.",o:[
+  ["pinot_noir",95,"Zemité tóny lesní půdy a houby jsou jako stvořené pro sebe."],
+  ["chardonnay_sud",88,"Krémová textura a máslo ladí s parmazánem a rizotem."],
+  ["barolo",84,"Nebbiolo s lanýžovými tóny je na houby výjimečné, jen taniny jsou silné."],
+  ["pinot_gris",80,"Oříškové tóny a plnost doplní krémovou rýži."],
+  ["fino",70,"Oříšková, umami sherry s houbami rezonuje – odvážná volba."],
+  ["chianti",66,"Kyselina a bylinky fungují, i když rizoto nemá rajčata."],
+  ["sauvignon",45,"Bylinková ostrost se se zemitostí hub nepotká."],
+  ["zinfandel",38,"Džemové ovoce přebije jemné houby."],
+  ["moscato_dasti",15,"Sladké perlivé víno ke slanému rizotu nedává smysl."],
+  ["port",10,"Sladkost a síla – houby úplně zmizí."]]},
+ {id:"jehneci",e:"🐑",n:"Jehněčí kýta na rozmarýnu",d:"Pomalu pečená jehněčí kýta s česnekem, rozmarýnem a pečenými brambory.",o:[
+  ["rioja",94,"Tempranillo s kůží a vanilkou ladí s rozmarýnem i jehněčím tukem."],
+  ["syrah",90,"Pepř a bylinky z Rhôny – k jehněčímu klasika."],
+  ["cabernet",88,"Taniny a cedrové tóny – bordeauxská klasika s jehněčím."],
+  ["malbec",82,"Šťavnaté a plné, k pečenému jehněčímu výborné."],
+  ["chianti",78,"Bylinkové tóny a kyselina k rozmarýnu sedí."],
+  ["pinot_noir",64,"K růžovému jehněčímu ano, k pečené kýtě s bylinkami trochu slabé."],
+  ["sauvignon",40,"Bylinky by se potkaly, ale víno je na jehněčí příliš lehké a kyselé."],
+  ["prosecco",22,"Příliš lehké a ovocné pro výrazné maso."],
+  ["muskat",20,"Hroznová aromatika s rozmarýnem a jehněčím koliduje."],
+  ["tokaj",12,"Dezertní sladkost k pečeni nepatří."]]},
+ {id:"gulas",e:"🍲",n:"Hovězí guláš",d:"Pomalu dušený guláš se sladkou i pálivou paprikou, cibulí a majoránkou.",o:[
+  ["frankovka",90,"Koření, višně a kyselina zvládnou papriku i hustou cibulovou omáčku."],
+  ["syrah",88,"Kořenitost a pepř se krásně potkají s paprikou."],
+  ["zinfandel",86,"Zralé ovoce a vyšší alkohol k sytému, pikantnímu guláši."],
+  ["malbec",84,"Plné a šťavnaté – k hovězímu ragú přirozené."],
+  ["svatovavrinecke",82,"Sametové tmavé ovoce k omáčce s hovězím."],
+  ["merlot",78,"Měkké a švestkové, nekonfliktní volba."],
+  ["ryzlink",50,"Polosuchý ryzlink by pálivost zmírnil, ale na guláš je lehký."],
+  ["prosecco",30,"Bubliny se v hustém guláši úplně ztratí."],
+  ["chablis",22,"Štíhlé minerální bílé proti paprice a hovězímu nemá šanci."],
+  ["sauternes",8,"Sladké víno ke guláši – absolutně ne."]]},
+ {id:"krevety",e:"🦐",n:"Krevety na česneku",d:"Gambas al ajillo – krevety v olivovém oleji s česnekem, chilli a petrželkou.",o:[
+  ["fino",94,"Španělská klasika – slaná, oříšková sherry k česneku a olivovému oleji."],
+  ["sauvignon",90,"Citrusy a kyselina zvýrazní česnek i sladkost krevet."],
+  ["veltlin",86,"Svěží a pepřové, k mořským plodům s česnekem výborné."],
+  ["chablis",84,"Minerální čistota sedí ke krevetám, jen česnek je trochu silný."],
+  ["champagne",82,"Bubliny čistí olej z patra, kyselina ladí s mořskými plody."],
+  ["rose",80,"Provensálské růžové k česneku a mořským plodům – středomořská pohoda."],
+  ["chardonnay_sud",62,"Plnost olej unese, ale dub zakryje jemnost krevet."],
+  ["cabernet",14,"Taniny s mořskými plody a chilli – kovová a pálivá kombinace."],
+  ["amarone",12,"Těžké a alkoholické, krevety v něm zmizí."],
+  ["port",6,"Sladké portské k česnekovým krevetám nedává smysl."]]},
+ {id:"roquefort",e:"🧀",n:"Roquefort s hruškou",d:"Ovčí sýr s modrou plísní, plátky hrušky a vlašské ořechy.",o:[
+  ["sauternes",97,"Legendární kombinace – med a sladkost vyrovnají slanost a pikantnost plísně."],
+  ["port",92,"Sladké portské s tmavým ovocem proti slanému sýru – britská klasika."],
+  ["tokaj",90,"Medová sladkost a vysoká kyselina tvoří výborný kontrast."],
+  ["tramin",72,"Jemná sladkost a aromatika fungují, jen tělo je lehčí."],
+  ["amarone",70,"Mohutné, s náznakem sladkosti – silný sýr unese."],
+  ["moscato_dasti",60,"Sladké, ale na tak silný sýr příliš lehké."],
+  ["sauvignon",35,"Suché a kyselé – slanost sýra víno ještě vyostří."],
+  ["pinot_noir",32,"Jemné červené se pod plísní úplně ztratí."],
+  ["cabernet",30,"Taniny s plísní zhořknou."],
+  ["prosecco",28,"Lehké bubliny proti silnému sýru nic nezmůžou."]]},
+ {id:"strudl",e:"🍎",n:"Jablečný štrúdl",d:"Tažené těsto plněné jablky, rozinkami a skořicí, s vanilkovou omáčkou.",o:[
+  ["tokaj",93,"Med, meruňky a svěží kyselina sedí ke skořici i jablkům."],
+  ["moscato_dasti",90,"Lehké, sladké a jemně perlivé – svěží tečka ke štrúdlu."],
+  ["sauternes",86,"Sladké a medové, k pečeným jablkům výborné, jen je trochu těžší."],
+  ["tramin",72,"Kořenitost ladí se skořicí, sladkost by mohla být vyšší."],
+  ["muskat",70,"Hroznová vůně k jablkům sedí, ale suchý muškát může u dezertu působit kysele."],
+  ["port",60,"Tmavé ovoce a síla jemná jablka trochu přebijí."],
+  ["prosecco",50,"Je spíše suché, takže ke sladkému dezertu působí kysele."],
+  ["champagne",30,"Suché brut k dezertu chutná kysele a ostře."],
+  ["cabernet",12,"Suché tanické víno se sladkým dezertem zhořkne."],
+  ["syrah",10,"Kořenité, suché a plné – se štrúdlem naprosto nesedí."]]},
+ {id:"rizek",e:"🍽️",n:"Řízek s bramborovým salátem",d:"Tenký vepřový řízek smažený na sádle a klasický český bramborový salát.",o:[
+  ["veltlin",94,"Rakouská klasika – řízek a Veltlín jsou nerozluční partneři."],
+  ["ryzlink",88,"Kyselina prořízne tuk a citrusy nahradí plátek citronu."],
+  ["sauvignon",82,"Svěží a bylinkové, k bramborovému salátu s cibulkou sedí."],
+  ["prosecco",80,"Bubliny čistí patro po smaženém – lehká, sváteční varianta."],
+  ["pinot_gris",78,"Plnější bílé k řízku dobře, kyselina je ale jemnější."],
+  ["zweigelt",76,"Lehké červené s nízkými taniny k vepřovému řízku ujde."],
+  ["chardonnay_sud",55,"Máslo a dub s majonézovým salátem působí těžce."],
+  ["cabernet",30,"Taniny jsou k jemnému masu a salátu zbytečně tvrdé."],
+  ["amarone",14,"Těžké víno ke smaženému jídlu – příliš mnoho tíhy."],
+  ["port",8,"Sladké portské k řízku – úplný omyl."]]},
+ {id:"lasagne",e:"🍝",n:"Lasagne Bolognese",d:"Vrstvy těstovin s masovým ragú, bešamelem a parmazánem.",o:[
+  ["chianti",94,"Kyselina Sangiovese sedí k rajčatovému ragú, višně a bylinky k masu."],
+  ["zinfandel",85,"Primitivo – zralé ovoce a plnost k sytému masovému ragú."],
+  ["frankovka",82,"Kyselina a koření fungují k rajčatům i bešamelu."],
+  ["merlot",80,"Měkké a švestkové – příjemné a bez konfliktu."],
+  ["syrah",76,"Kořenité a plné, jen trochu výraznější než jídlo."],
+  ["rose",62,"Suché růžové ujde, ale na hutné ragú je lehké."],
+  ["pinot_noir",60,"Elegantní, ale masové ragú ho trochu přebije."],
+  ["sauvignon",35,"Bylinková kyselost s rajčaty a bešamelem nesouzní."],
+  ["muskat",20,"Hroznová aromatika k masovému ragú nesedí."],
+  ["tokaj",12,"Sladké víno a rajčatová omáčka se vzájemně kazí."]]},
+ /* ---- dny 21–40 ---- */
+ {id:"kapr",e:"🎄",n:"Smažený kapr s bramborovým salátem",d:"Štědrovečerní klasika – kapr v trojobalu a bramborový salát s majonézou.",o:[
+  ["muller",92,"Lehké, jemně muškátové a svěží – vánoční klasika, která kapra nepřebije."],
+  ["veltlin",90,"Pepřová svěžest prořízne trojobal i majonézu."],
+  ["ryzlink",88,"Kyselina a citrusy fungují jako plátek citronu ke smažené rybě."],
+  ["champagne",86,"Bubliny a kyselina proti tuku – slavnostní varianta na Štědrý den."],
+  ["sauvignon",82,"Svěží a bylinkové, sedí k salátu s cibulí a okurkou."],
+  ["palava",70,"Aromatické a jemně sladké – k rybě už trochu výrazné."],
+  ["chardonnay_sud",52,"Máslo a dub se smaženým jídlem a majonézou působí těžce."],
+  ["pinot_noir",45,"Lehké červené ujde, ale s majonézou ztrácí ovoce."],
+  ["cabernet",15,"Taniny s rybou vytvoří kovovou pachuť."],
+  ["port",8,"Sladké portské ke kaprovi – úplný omyl."]]},
+ {id:"husa",e:"🪿",n:"Pečená husa s červeným zelím",d:"Svatomartinská husa s křupavou kůží, červeným zelím a karlovarským knedlíkem.",o:[
+  ["svatovavrinecke",93,"Sametové tmavé ovoce k tučné huse – česká klasika."],
+  ["pinot_noir",90,"Kyselina a třešně čistí tuk, jemné taniny maso nepřebijí."],
+  ["frankovka",88,"Živá kyselina a koření zvládnou tuk i sladkokyselé zelí."],
+  ["zweigelt",82,"Mladé ovocné červené – typické svatomartinské víno."],
+  ["pinot_gris",76,"Plnější bílé s medovými tóny tučné maso unese."],
+  ["tramin",70,"Kořenitost ladí s červeným zelím, sladkost je ale navíc."],
+  ["cabernet",50,"Silné taniny s tukem fungují, ale přebijí jemnější chutě."],
+  ["prosecco",32,"Lehké bubliny proti tučné huse nestačí."],
+  ["sauvignon",30,"Štíhlé bylinkové víno vedle tučné pečeně působí kysele."],
+  ["moscato_dasti",12,"Sladké perlivé víno k pečené huse nesedí."]]},
+ {id:"tatarak",e:"🔪",n:"Hovězí tatarák s topinkami",d:"Syrová hovězí svíčková s cibulí, kapary, žloutkem a česnekovými topinkami.",o:[
+  ["beaujolais",92,"Lehce chlazené, šťavnaté Gamay – v Lyonu k tataráku klasika."],
+  ["pinot_noir",90,"Lehké, elegantní červené k jemnému syrovému hovězímu."],
+  ["rose",88,"Suché růžové je svěží a syrové maso nepřebije."],
+  ["champagne",84,"Bubliny proříznou žloutek, kyselina ladí s kapary."],
+  ["frankovka",80,"Živá kyselina a koření sedí k pikantnímu tataráku."],
+  ["chablis",72,"Minerální svěžest jde ke kaparům, ale chybí ovoce pro maso."],
+  ["cabernet",45,"Taniny jsou na syrové maso příliš tvrdé."],
+  ["amarone",20,"Těžké a alkoholické – jemný tatarák zcela přehluší."],
+  ["sauternes",12,"Sladké dezertní víno k česneku a cibuli – konflikt."],
+  ["port",10,"Sladké portské k syrovému masu nedává smysl."]]},
+ {id:"paprikas",e:"🍗",n:"Kuře na paprice s knedlíkem",d:"Kuřecí maso v krémové omáčce se sladkou paprikou a smetanou, s houskovým knedlíkem.",o:[
+  ["pinot_gris",92,"Plnější bílé s krémovou texturou ladí se smetanou i paprikou."],
+  ["chardonnay_sud",86,"Máslové tóny jdou ke smetanové omáčce, jen může být trochu těžké."],
+  ["veltlin",84,"Pepřovost k paprice a kyselina proti smetaně."],
+  ["frankovka",82,"Lehčí červené s kyselinou a kořením k paprice."],
+  ["zweigelt",78,"Ovocné a s nízkými taniny – k drůbeži příjemné."],
+  ["ryzlink",76,"Kyselina osvěží, ke smetanové omáčce ale může být štíhlý."],
+  ["syrah",40,"Kořenité, ale na kuře se smetanou příliš mohutné."],
+  ["cabernet",35,"Taniny se smetanou působí hořce."],
+  ["fino",25,"Slaná, ostrá sherry se smetanovou omáčkou nesouzní."],
+  ["sauternes",10,"Dezertní sladkost k hlavnímu jídlu nepatří."]]},
+ {id:"pstruh",e:"🐠",n:"Pstruh na másle s mandlemi",d:"Celý pstruh opečený na másle s praženými mandlemi a petrželkou.",o:[
+  ["chablis",92,"Minerální Chardonnay k jemné sladkovodní rybě a máslu."],
+  ["ryzlink",90,"Svěží kyselina a minerálnost – k pstruhovi ideální."],
+  ["pinot_gris",86,"Oříškové tóny krásně ladí s mandlemi a máslem."],
+  ["veltlin",84,"Svěží a pepřové, rybu i petrželku podtrhne."],
+  ["chardonnay_sud",82,"Máslo na máslo funguje, jen dub nesmí být příliš silný."],
+  ["muller",76,"Lehké a jemné – nic nezkazí."],
+  ["pinot_noir",55,"Lehké červené ujde, ale bílé je přesnější."],
+  ["syrah",20,"Kořenitá síla jemnou rybu přehluší."],
+  ["cabernet",15,"Taniny s rybou vytvoří kovovou pachuť."],
+  ["port",6,"Sladké portské k pstruhovi nedává smysl."]]},
+ {id:"tiramisu",e:"☕",n:"Tiramisu",d:"Piškoty namočené v espressu, krém z mascarpone a kakao.",o:[
+  ["marsala",94,"Marsala se často přidává přímo do krému – karamel a ořechy ke kávě."],
+  ["port",84,"Sladké tmavé ovoce ke kakau a espressu."],
+  ["tokaj",80,"Medová sladkost a kyselina proti krémovému mascarpone."],
+  ["moscato_dasti",78,"Lehké a sladké – ke krémovému dezertu osvěžující."],
+  ["sauternes",74,"Sladké a medové, jen s kávou méně rezonuje."],
+  ["amarone",55,"Čokoládové tóny má, ale suché víno dezert zhořkne."],
+  ["prosecco",40,"Je spíše suché, ke sladkému dezertu působí kysele."],
+  ["champagne",22,"Suché brut s krémem a kávou chutná kysele."],
+  ["cabernet",15,"Suché tanické víno s dezertem zhořkne."],
+  ["sauvignon",8,"Kyselé a bylinkové – s kávou a kakaem nesoulad."]]},
+ {id:"bramboraky",e:"🥔",n:"Bramboráky s majoránkou",d:"Křupavé bramborové placky s česnekem a majoránkou, smažené na sádle.",o:[
+  ["veltlin",92,"Pepřová svěžest k majoránce a kyselina proti tuku."],
+  ["prosecco",86,"Bubliny ke smaženému jídlu – jednoduchá radost."],
+  ["ryzlink",85,"Kyselina čistí tuk, ovoce osvěží."],
+  ["sauvignon",84,"Bylinky k majoránce, kyselina proti sádlu."],
+  ["muller",82,"Lehké a nekomplikované, k lidovému jídlu jako stvořené."],
+  ["zweigelt",74,"Lehké červené ke smaženým bramborám ujde."],
+  ["chardonnay_sud",50,"Dub a máslo ke smaženému působí zbytečně těžce."],
+  ["barolo",20,"Tvrdé taniny k bramborákům nedávají smysl."],
+  ["amarone",15,"Mohutné víno k jednoduchému jídlu – dvojí tíha."],
+  ["sauternes",10,"Sladkost s česnekem a majoránkou nejde dohromady."]]},
+ {id:"pastika",e:"🍞",n:"Paštika z kachních jater s brioškou",d:"Jemná paštika z kachních jater s opečenou brioškou a cibulovým džemem.",o:[
+  ["sauternes",97,"Legendární francouzská kombinace – med a kyselina proti bohatým játrům."],
+  ["tokaj",94,"Sladkost a vysoká kyselina čistí tučná játra."],
+  ["tramin",82,"Aromatický a jemně sladký, ladí s cibulovým džemem."],
+  ["champagne",78,"Bubliny a kyselina proříznou tuk, jen chybí sladkost."],
+  ["pinot_gris",76,"Plné, medové bílé – jemná alternativa."],
+  ["port",70,"Sladkost ano, ale tmavé ovoce je trochu těžké."],
+  ["pinot_noir",55,"Lehké červené ujde, ale nic zvláštního nepřidá."],
+  ["sauvignon",35,"Ostrá kyselina a bylinky proti jemné paštice působí hrubě."],
+  ["cabernet",22,"Taniny s tučnou paštikou zhořknou."],
+  ["syrah",20,"Pepřová síla jemnou chuť jater přehluší."]]},
+ {id:"burger",e:"🍔",n:"Burger s čedarem a slaninou",d:"Šťavnatý hovězí burger s čedarem, křupavou slaninou a karamelizovanou cibulí.",o:[
+  ["zinfandel",93,"Zralé džemové ovoce a kouř – americká klasika k burgeru."],
+  ["malbec",90,"Šťavnaté a plné, k grilovanému hovězímu přirozené."],
+  ["syrah",86,"Pepř a kouř se potkají se slaninou."],
+  ["merlot",80,"Měkké a švestkové – nekonfliktní a příjemné."],
+  ["lambrusco",80,"Perlivé červené proti tuku a sýru – zábavné a funkční."],
+  ["cabernet",78,"Taniny k masu fungují, jen je na burger trochu vážný."],
+  ["rose",62,"Suché růžové ujde, ale na burger je lehké."],
+  ["chablis",35,"Štíhlé minerální bílé proti burgeru nemá šanci."],
+  ["muskat",22,"Hroznová aromatika se slaninou a čedarem nesedí."],
+  ["sauternes",8,"Sladké dezertní víno k burgeru – ne."]]},
+ {id:"carbonara",e:"🍝",n:"Spaghetti carbonara",d:"Těstoviny s guanciale, žloutky, pecorinem a čerstvě mletým černým pepřem.",o:[
+  ["pinot_gris",90,"Pinot grigio s tělem i kyselinou – prořízne žloutek a sýr."],
+  ["chablis",88,"Minerální svěžest proti krémové omáčce a slanému guanciale."],
+  ["veltlin",86,"Bílý pepř ve víně se potká s černým pepřem v jídle."],
+  ["champagne",84,"Bubliny čistí patro po tučném guanciale."],
+  ["chardonnay_sud",82,"Krémovost ladí s omáčkou, jen hrozí, že bude těžké."],
+  ["pinot_noir",72,"Lehké červené s kyselinou ke slanině ujde."],
+  ["chianti",70,"Kyselina funguje, ale bez rajčat není ideální partner."],
+  ["cabernet",30,"Taniny se žloutkem a sýrem působí tvrdě."],
+  ["moscato_dasti",15,"Sladké perlivé víno k slaným těstovinám nesedí."],
+  ["tokaj",12,"Sladkost proti pecorinu a pepři – konflikt."]]},
+ {id:"paella",e:"🥘",n:"Paella s mořskými plody",d:"Šafránová rýže s krevetami, slávkami, sépií a citronem.",o:[
+  ["rose",93,"Suché růžové – ve Španělsku k paelle naprosto přirozené."],
+  ["fino",88,"Slaná, oříšková sherry k šafránu a mořským plodům."],
+  ["sauvignon",86,"Citrusy a kyselina zvýrazní mořské plody."],
+  ["chablis",84,"Minerální a čisté, ke slávkám výborné."],
+  ["veltlin",82,"Svěží a pepřové, k šafránové rýži sedí."],
+  ["champagne",80,"Bubliny a kyselina – slavnostní, i když méně tradiční."],
+  ["rioja",60,"Lehčí Rioja by ujela, Reserva je na mořské plody těžká."],
+  ["cabernet",18,"Taniny s mořskými plody vytvoří kovovou pachuť."],
+  ["amarone",12,"Masivní víno paellu úplně přebije."],
+  ["port",6,"Sladké fortifikované víno k mořským plodům – ne."]]},
+ {id:"pekingska",e:"🥢",n:"Pekingská kachna",d:"Lakovaná kachní kůže v palačinkách s okurkou, jarní cibulkou a sladkou hoisin omáčkou.",o:[
+  ["pinot_noir",94,"Třešňové ovoce a kyselina k tučné kachně i sladké omáčce."],
+  ["tramin",86,"Aromatika a jemná sladkost ladí s hoisin a pěti kořeními."],
+  ["ryzlink",84,"Polosuchý ryzlink vyrovná sladkost omáčky a osvěží."],
+  ["lambrusco",82,"Perlivé ovocné červené proti tučné kůži – funguje překvapivě dobře."],
+  ["zinfandel",76,"Zralé ovoce k sladké omáčce, jen alkohol je vysoký."],
+  ["merlot",74,"Měkké a švestkové, s hoisin příjemné."],
+  ["champagne",70,"Bubliny čistí tuk, ale sladkou omáčku nezvládnou."],
+  ["cabernet",40,"Silné taniny proti sladké omáčce zhořknou."],
+  ["chablis",38,"Štíhlé a minerální – chuťově se v kachně ztratí."],
+  ["sauternes",25,"Příliš sladké a těžké k celému jídlu."]]},
+ {id:"srnci",e:"🦌",n:"Srnčí hřbet s brusinkami",d:"Růžově pečený srnčí hřbet s brusinkovou omáčkou, červeným zelím a šťouchanými brambory.",o:[
+  ["syrah",93,"Pepř, ostružiny a kouř – ke zvěřině ideální."],
+  ["barolo",90,"Nebbiolo s tóny růží a dehtu – klasika ke zvěřině."],
+  ["pinot_noir",88,"Lesní půda a třešně k jemnému srnčímu masu."],
+  ["svatovavrinecke",86,"Tmavé třešně a švestky ladí s brusinkami."],
+  ["frankovka",85,"Kyselina a koření k zvěřině i brusinkám."],
+  ["rioja",84,"Kůže a sušené ovoce s divočinou skvěle souzní."],
+  ["cabernet",82,"Plné a strukturované, k pečené zvěřině výborné."],
+  ["prosecco",20,"Lehké bubliny proti zvěřině nemají šanci."],
+  ["muller",18,"Jemné bílé se vedle srnčího úplně ztratí."],
+  ["moscato_dasti",10,"Sladké perlivé víno ke zvěřině – nesmysl."]]},
+ {id:"kure",e:"🐔",n:"Pečené kuře s nádivkou",d:"Celé pečené kuře s bylinkovou nádivkou a pečenými brambory.",o:[
+  ["chardonnay_sud",92,"Plné, máslové bílé k pečené drůbeži – nedělní klasika."],
+  ["pinot_noir",90,"Lehké červené, které kuře nepřebije a podtrhne bylinky."],
+  ["beaujolais",84,"Šťavnaté a lehké – k pečenému kuřeti radost."],
+  ["pinot_gris",84,"Oříškové a medové tóny k nádivce."],
+  ["ryzlink",78,"Svěží kyselina, jen na pečeni trochu lehký."],
+  ["rose",76,"Suché růžové je univerzální a nekonfliktní."],
+  ["cabernet",50,"Taniny jsou na kuře zbytečně silné."],
+  ["syrah",45,"Kořenitá síla jemné maso přebije."],
+  ["tokaj",15,"Dezertní sladkost k hlavnímu jídlu nesedí."],
+  ["port",8,"Sladké portské ke kuřeti – omyl."]]},
+ {id:"fondue",e:"🫕",n:"Sýrové fondue",d:"Rozpuštěný ementál a gruyère s bílým vínem a česnekem, s kousky chleba.",o:[
+  ["veltlin",92,"Svěží kyselina prořízne tučný sýr, pepřovost ladí s česnekem."],
+  ["ryzlink",88,"Kyselina a minerálnost – sýr je s ním lehčí."],
+  ["sauvignon",84,"Ostrá svěžest proti těžkému sýru."],
+  ["champagne",80,"Bubliny čistí patro po každém soustu."],
+  ["muller",78,"Lehké bílé jako ve švýcarských horách."],
+  ["pinot_noir",66,"Lehké červené k sýru ujde, bílé je ale lepší."],
+  ["chardonnay_sud",55,"Máslo a dub k tučnému sýru – příliš těžké."],
+  ["malbec",28,"Plné červené s taniny k rozpuštěnému sýru tvrdne."],
+  ["cabernet",22,"Taniny se sýrem a česnekem zhořknou."],
+  ["port",15,"Sladké portské k fondue – sladkost na tučném sýru je únavná."]]},
+ {id:"cheesecake",e:"🍰",n:"Cheesecake s lesním ovocem",d:"Krémový tvarohový dort na sušenkovém korpusu s malinami a borůvkami.",o:[
+  ["moscato_dasti",92,"Lehké, sladké a perlivé – ke krémovému dortu s ovocem svěží."],
+  ["tokaj",86,"Medová sladkost a kyselina proti krémové náplni."],
+  ["sauternes",82,"Sladké a medové, k tvarohu výborné, jen je těžší."],
+  ["port",72,"Tmavé ovoce ladí s borůvkami, ale je dost silné."],
+  ["lambrusco",66,"Perlivé červené ovoce k malinám – zajímavé, jen ne dost sladké."],
+  ["muskat",55,"Hroznová vůně sedí, suché víno ale u dezertu kyselí."],
+  ["prosecco",45,"Spíše suché, ke sladkému dortu působí kysele."],
+  ["rose",40,"Suché růžové s dezertem ztrácí ovoce."],
+  ["cabernet",15,"Suché tanické víno s dortem zhořkne."],
+  ["chablis",12,"Kyselé a minerální – s dezertem nesoulad."]]},
+ {id:"cukrovi",e:"🍪",n:"Vánoční cukroví",d:"Vanilkové rohlíčky, linecké s marmeládou a perníčky s kořením.",o:[
+  ["tokaj",92,"Med, meruňky a kyselina – k vanilce i marmeládě ideální."],
+  ["sauternes",86,"Sladké a medové, k máslovému cukroví výborné."],
+  ["palava",86,"Moravská aromatika s jemnou sladkostí k perníčkům a koření."],
+  ["moscato_dasti",84,"Lehké a sladké, po vánoční večeři osvěžující."],
+  ["port",76,"Tmavé ovoce ladí s perníkem, k jemnému cukroví je těžší."],
+  ["marsala",74,"Karamel a ořechy k perníčkům sedí, k vanilce méně."],
+  ["prosecco",50,"Spíše suché, ke sladkému cukroví kyselé."],
+  ["champagne",35,"Suché brut s cukrovím chutná ostře."],
+  ["cabernet",14,"Suché tanické víno se sladkým zhořkne."],
+  ["sauvignon",10,"Kyselé a bylinkové – s cukrovím nesoulad."]]},
+ {id:"halloumi",e:"🍢",n:"Grilovaný halloumi se zeleninou",d:"Slaný kyperský sýr z grilu s cuketou, paprikou, rajčaty a mátou.",o:[
+  ["rose",92,"Suché růžové – středomořská pohoda ke slanému sýru a zelenině."],
+  ["sauvignon",90,"Kyselina a bylinky ladí s mátou a grilovanou zeleninou."],
+  ["veltlin",86,"Svěží a pepřové, ke slanému sýru výborné."],
+  ["ryzlink",82,"Kyselina vyrovná slanost, citrusy osvěží."],
+  ["muller",74,"Lehké a jemné, nic nezkazí."],
+  ["beaujolais",72,"Lehké, chlazené červené ke grilované zelenině ujde."],
+  ["chardonnay_sud",55,"Dub a máslo jsou ke svěžímu jídlu těžké."],
+  ["cabernet",28,"Taniny se slaným sýrem zhořknou."],
+  ["amarone",15,"Mohutné víno lehké jídlo přebije."],
+  ["port",10,"Sladké portské ke grilované zelenině nesedí."]]},
+ {id:"caesar",e:"🥬",n:"Salát Caesar s kuřetem",d:"Římský salát, grilovaná kuřecí prsa, krutony, parmazán a ančovičkový dresink.",o:[
+  ["chablis",92,"Minerální Chardonnay ke krémovému dresinku a parmazánu."],
+  ["chardonnay_sud",88,"Krémovost ladí s dresinkem, kuře unese i plnější víno."],
+  ["champagne",86,"Bubliny proříznou dresink, slanost parmazánu zvýrazní."],
+  ["sauvignon",84,"Svěží a bylinkové, k salátu výborné."],
+  ["pinot_gris",80,"Plnější bílé k kuřeti a sýru."],
+  ["rose",74,"Suché růžové je k salátu univerzální."],
+  ["pinot_noir",58,"Lehké červené ke kuřeti ujde, s ančovičkami méně."],
+  ["cabernet",25,"Taniny s ančovičkami a sýrem – kovová pachuť."],
+  ["tokaj",14,"Sladkost k slanému salátu nesedí."],
+  ["port",8,"Sladké portské k salátu – omyl."]]},
+ {id:"tacos",e:"🌮",n:"Tacos al pastor",d:"Kukuřičné tortilly s marinovaným vepřovým, ananasem, koriandrem a chilli salsou.",o:[
+  ["ryzlink",90,"Polosuchý ryzlink tlumí chilli a ladí s ananasem."],
+  ["rose",86,"Suché, svěží růžové k pikantnímu masu i koriandru."],
+  ["tramin",84,"Aromatika a jemná sladkost ke koření a ananasu."],
+  ["lambrusco",82,"Perlivé ovocné červené osvěží a pálivost nezesílí."],
+  ["beaujolais",80,"Lehké, chlazené a šťavnaté – k tacos výborné."],
+  ["zinfandel",70,"Zralé ovoce sedí, ale vysoký alkohol pálivost zvýrazní."],
+  ["malbec",60,"Šťavnaté, ale taniny s chilli trochu pálí."],
+  ["cabernet",25,"Taniny a alkohol s chilli – hořké a pálivé."],
+  ["barolo",18,"Tvrdé taniny a pálivá salsa jsou nesnesitelné."],
+  ["sauternes",15,"Sladké dezertní víno k pikantním tacos nesedí."]]}
+];
+
+/* ---------- POMOCNÉ ---------- */
+const START = Date.UTC(2026,10,19); // první výzva
+const KEY = "denniParovaniVina.historie.v1";
+const $ = id => document.getElementById(id);
+
+function todayKey(d=new Date()){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function dayIndexOf(key){
+  const [y,m,d] = key.split("-").map(Number);
+  return Math.floor((Date.UTC(y,m-1,d)-START)/86400000);
+}
+function rng(seed){ // mulberry32
+  return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed);
+    t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
+}
+function shuffle(arr,seed){
+  const a=arr.slice(), r=rng(seed);
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function foodForDay(idx){
+  if(idx<0) idx=0;
+  if(idx<20) return shuffle(FOODS.slice(0,20), 9173)[idx];        // dny 1–20 (beze změny)
+  if(idx<40){                                                     // dny 21–40 (9.–28. 12.), kapr na Štědrý den
+    const order=["halloumi","burger","srnci","paella","tiramisu","carbonara","caesar","paprikas","tacos","fondue",
+                 "pekingska","pstruh","bramboraky","tatarak","cukrovi","kapr","husa","kure","pastika","cheesecake"];
+    return FOODS.find(f=>f.id===order[idx-20]);
+  }
+  const n=FOODS.length, k=idx-40, cycle=Math.floor(k/n);          // dále cyklicky ze všech
+  return shuffle(FOODS, 9173+(cycle+1)*7919)[k%n];
+}
+function label(s){
+  if(s>=90) return "Dokonalé párování!";
+  if(s>=75) return "Výborná volba";
+  if(s>=55) return "Dobré, ale jde to lépe";
+  if(s>=35) return "Rozpačité spojení";
+  return "Tohle raději ne";
+}
+function color(s){
+  const v = s>=80?"--good":s>=60?"--ok":s>=35?"--meh":"--bad";
+  return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+}
+const TYPE_COLOR = {bile:"#e6cf7a",cervene:"#8e1b2c",ruzove:"#e79aa6",sumive:"#efe3a6",dezertni:"#d49a3a",fortifikovane:"#5e1626"};
+function tag(t){ return `<span class="tag"><span class="dot" style="background:${TYPE_COLOR[t]}"></span>${TYPE_LABEL[t]}</span>`; }
+let gid=0;
+function glass(fill,level,w,stroke){ // level 0–1
+  const id="gl"+(gid++), H=72, top=8, bottom=40, y=bottom-(bottom-top)*level;
+  return `<svg class="g" width="${w}" height="${w*1.5}" viewBox="0 0 48 72" aria-hidden="true">
+    <defs><clipPath id="${id}"><path d="M10 4h28c1.2 12 1 22-4.5 30-2.6 3.8-6 5.5-9.5 5.5s-6.9-1.7-9.5-5.5C9 26 8.8 16 10 4z"/></clipPath></defs>
+    <rect class="fillr" x="0" y="${y}" width="48" height="${H}" fill="${fill}" clip-path="url(#${id})" data-y="${y}"/>
+    <path d="M10 4h28c1.2 12 1 22-4.5 30-2.6 3.8-6 5.5-9.5 5.5s-6.9-1.7-9.5-5.5C9 26 8.8 16 10 4z" fill="none" stroke="${stroke}" stroke-width="1.6"/>
+    <path d="M24 40v24M14 67h20" stroke="${stroke}" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M14 9c-.4 6 0 12 2 17" stroke="rgba(255,255,255,.55)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+let memHistory = {};
+function loadHistory(){
+  try{ const r=localStorage.getItem(KEY); if(r) return JSON.parse(r)||{}; }catch(e){}
+  return memHistory;
+}
+function saveHistory(h){
+  memHistory=h;
+  try{ localStorage.setItem(KEY, JSON.stringify(h)); }catch(e){}
+}
+
+/* ---------- STAV DNE ---------- */
+const TODAY = todayKey();
+const IDX = dayIndexOf(TODAY);
+const FOOD = foodForDay(IDX);
+const OPTIONS = shuffle(FOOD.o, 31337+IDX*101);
+const BEST = FOOD.o.reduce((a,b)=>b[1]>a[1]?b:a);
+
+function renderHeader(){
+  const d = new Date().toLocaleDateString("cs-CZ",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  $("sub").textContent = `Výzva č. ${IDX+1} · ${d}`;
+  $("foodEmoji").textContent = FOOD.e;
+  $("foodName").textContent = FOOD.n;
+  $("foodDesc").textContent = FOOD.d;
+}
+
+function renderOptions(picked){
+  const box=$("options"); box.innerHTML="";
+  OPTIONS.forEach(([wid,score])=>{
+    const w=WINES[wid];
+    const b=document.createElement("button");
+    b.className="opt"+(picked?" done":"")+(picked===wid?" picked":"")+(picked&&wid===BEST[0]?" best":"");
+    b.innerHTML = glass(TYPE_COLOR[w.t], .55, 26, "#d4af6a")+`<span class="txt"><span class="n">${esc(w.n)}</span><span class="t">${tag(w.t)}</span></span>`+
+      (picked?`<span class="sc" style="color:${color(score)}">${score} %</span>`:"");
+    if(!picked) b.addEventListener("click",()=>choose(wid));
+    else b.disabled=true;
+    box.appendChild(b);
+  });
+  $("question").textContent = picked ? "Hodnocení dnešních vín" : "Které víno se k tomu hodí nejlépe?";
+}
+
+function ring(score){
+  const col=color(score);
+  return glass("#8e1b2c", score/100, 64, "#9b7a3c").replace('y="','y="40" data-final="')+`<div class="v" style="color:${col}">${score}&nbsp;%</div>`;
+}
+
+function renderResult(wid){
+  const opt = FOOD.o.find(o=>o[0]===wid), w=WINES[wid], s=opt[1];
+  $("ring").innerHTML = ring(s);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const r=$("ring").querySelector(".fillr"); if(r){ r.style.transition="y 1.2s ease"; r.setAttribute("y", r.getAttribute("data-final")); r.style.y=r.getAttribute("data-final")+"px"; }
+  }));
+  $("verdict").textContent = label(s);
+  $("verdict").style.color = color(s);
+  $("pickName").innerHTML = esc(w.n)+` <span class="sans" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-muted)">${tag(w.t)}</span>`;
+  $("pickDesc").textContent = w.d;
+  $("pickWhy").innerHTML = `<b>Proč?</b> ${esc(opt[2])}`;
+  const bw=WINES[BEST[0]];
+  $("bestBox").innerHTML = wid===BEST[0]
+    ? `<div class="eyebrow">🏆 Trefa!</div><div class="bn">Vybral(a) jsi nejlepší možné víno.</div><p class="desc" style="margin:0">Dnes nebylo lepší párování než ${esc(bw.n)} (${BEST[1]} %).</p>`
+    : `<div class="eyebrow">🏆 Nejlepší volba dne · ${BEST[1]} %</div><div class="bn">${esc(bw.n)} <span class="sans" style="font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-muted)">${tag(bw.t)}</span></div>
+       <p class="desc" style="margin:0 0 6px">${esc(bw.d)}</p><div>${esc(BEST[2])}</div>`;
+  const sorted = FOOD.o.slice().sort((a,b)=>b[1]-a[1]);
+  $("rank").innerHTML = sorted.map(([id,sc,why])=>{
+    const ww=WINES[id];
+    return `<li><div class="top"><span>${esc(ww.n)}${id===wid?'<span class="mine">tvoje volba</span>':""}</span><span class="s" style="color:${color(sc)}">${sc} %</span></div><div class="t sans" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-muted)">${tag(ww.t)}</div>
+      <p>${esc(why)}</p><div class="bar"><i style="width:${sc}%;background:${color(sc)}"></i></div></li>`;
+  }).join("");
+  $("result").classList.add("show");
+}
+
+function choose(wid){
+  const h=loadHistory();
+  if(h[TODAY]) return;
+  const s=FOOD.o.find(o=>o[0]===wid)[1];
+  h[TODAY]={food:FOOD.id,wine:wid,score:s,best:BEST[0]};
+  saveHistory(h);
+  renderOptions(wid);
+  renderResult(wid);
+  renderHistory();
+  setTimeout(()=>$("result").scrollIntoView({behavior:"smooth",block:"start"}),60);
+}
+
+/* ---------- HISTORIE ---------- */
+function renderHistory(){
+  const h=loadHistory();
+  const keys=Object.keys(h).sort().reverse();
+  const played=keys.length;
+  const avg = played? Math.round(keys.reduce((a,k)=>a+h[k].score,0)/played) : 0;
+  const hits = keys.filter(k=>h[k].wine===h[k].best).length;
+  // série
+  let streak=0; const d=new Date();
+  if(!h[todayKey(d)]) d.setDate(d.getDate()-1);
+  while(h[todayKey(d)]){ streak++; d.setDate(d.getDate()-1); }
+  $("stats").innerHTML = [
+    [played,"Odehráno dní"],[played?avg+" %":"–","Průměrné skóre"],[streak,"Série v řadě"],[hits,"Trefa nejlepšího"]
+  ].map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join("");
+  $("clearBtn").style.display = played?"":"none";
+  if(!played){ $("hist").innerHTML=`<li class="empty" style="display:block">Zatím žádná historie. Vyber dnešní víno a začni sbírat body!</li>`; return; }
+  $("hist").innerHTML = keys.map(k=>{
+    const e=h[k], f=FOODS.find(x=>x.id===e.food)||{e:"🍽️",n:"Neznámé jídlo"}, w=WINES[e.wine]||{n:e.wine}, b=WINES[e.best]||{n:e.best};
+    const [y,m,dd]=k.split("-").map(Number);
+    const ds=new Date(y,m-1,dd).toLocaleDateString("cs-CZ",{weekday:"short",day:"numeric",month:"long"});
+    return `<li><div class="he">${f.e}</div>
+      <div><div class="hd">${ds} · výzva č. ${dayIndexOf(k)+1}</div><div class="hf">${esc(f.n)}</div>
+      <div class="hw">Tvoje volba: ${esc(w.n)}${e.wine===e.best?" 🏆":` · nejlepší: ${esc(b.n)}`}</div></div>
+      <div class="hs" style="color:${color(e.score)}">${e.score} %<small>${label(e.score).replace("!","")}</small></div></li>`;
+  }).join("");
+}
+
+$("clearBtn").addEventListener("click",()=>{ $("clearBtn").style.display="none"; $("confirm").classList.add("show"); });
+$("noClear").addEventListener("click",()=>{ $("confirm").classList.remove("show"); $("clearBtn").style.display=""; });
+$("yesClear").addEventListener("click",()=>{
+  const h=loadHistory(); const keep = h[TODAY] ? {[TODAY]:h[TODAY]} : {};
+  saveHistory(keep); $("confirm").classList.remove("show"); renderHistory(); toast("Starší historie byla smazána");
+});
+
+/* ---------- SDÍLENÍ & ODPOČET ---------- */
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2200); }
+$("shareBtn").addEventListener("click",async()=>{
+  const e=loadHistory()[TODAY]; if(!e) return;
+  const blocks = Math.round(e.score/10);
+  const txt = `🍷 Denní párování vína – výzva č. ${IDX+1}\n${FOOD.e} ${FOOD.n}\n${"🟥".repeat(blocks)}${"⬜".repeat(10-blocks)} ${e.score} %${e.wine===e.best?" 🏆":""}`;
+  try{ await navigator.clipboard.writeText(txt); toast("Výsledek zkopírován do schránky"); }
+  catch(err){ toast("Kopírování se nepodařilo"); }
+});
+function tick(){
+  const now=new Date(), next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
+  const s=Math.max(0,Math.floor((next-now)/1000));
+  if(todayKey(now)!==TODAY){ location.reload(); return; }
+  $("cd").textContent=[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(x=>String(x).padStart(2,"0")).join(":");
+}
+
+/* ---------- START ---------- */
+renderHeader();
+const done = loadHistory()[TODAY];
+renderOptions(done?done.wine:null);
+if(done) renderResult(done.wine);
+renderHistory();
+tick(); setInterval(tick,1000);
+</script>
+</body>
+</html>
